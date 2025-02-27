@@ -1,15 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Star } from "lucide-react";
-import Sidebar from "../components/Sidebar"; // Adjust path if needed
+import { Search, Star, User, Calendar, List } from "lucide-react";
+import Sidebar from "../components/Sidebar";
+import "bootstrap/dist/css/bootstrap.min.css";
 
-const Dashboard = () => {
+const Dashboard = ({ user, setUser }) => { // ✅ Accept props from App.js
   const [query, setQuery] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [userName, setUserName] = useState(user?.username || "Guest"); // ✅ Uses passed user
 
   const API_KEY = "ccab842f1fa040e5b40a77f6902ece2d"; // Replace with your actual API key
+
+  // ✅ Fetch user details if not already available
+  useEffect(() => {
+    if (user?.username) return; // Skip fetching if user is already provided
+
+    const fetchUserData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        const response = await fetch("http://localhost:5000/api/user/profile", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setUser(data); // ✅ Update global user state
+          setUserName(data.username || "Guest");
+          localStorage.setItem("user", JSON.stringify(data)); // ✅ Persist user
+        } else {
+          console.error("Failed to fetch user details");
+          setUserName("Guest");
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+        setUserName("Guest");
+      }
+    };
+
+    fetchUserData();
+  }, [user, setUser]);
 
   const fetchRecipes = async () => {
     if (!query.trim()) {
@@ -17,106 +54,129 @@ const Dashboard = () => {
       setError("Please enter a search term.");
       return;
     }
-
     setLoading(true);
     setError("");
 
     try {
-      console.log("Fetching recipes for:", query); // Debugging log
-
       const response = await fetch(
         `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=5&apiKey=${API_KEY}`
       );
       const data = await response.json();
-
-      console.log("API Response:", data); // Debugging log
-
-      if (data.results && data.results.length > 0) {
-        setRecipes(data.results);
-      } else {
-        setRecipes([]);
-        setError("No recipes found.");
-      }
+      setRecipes(data.results.length > 0 ? data.results : []);
+      setError(data.results.length === 0 ? "No recipes found." : "");
     } catch (err) {
-      console.error("API Error:", err);
       setError("Failed to fetch recipes. Try again.");
     }
-
     setLoading(false);
   };
 
   useEffect(() => {
     if (query.trim()) fetchRecipes();
-  }, [query]); // Auto-fetch when query changes
+  }, [query]);
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
+    <div className="d-flex bg-light min-vh-100">
       {/* Sidebar */}
       <Sidebar />
 
       {/* Main Content */}
-      <div className="ml-64 w-full">
+      <div className="container-fluid p-4">
         {/* Hero Section */}
-        <div
-          className="relative h-64 bg-cover bg-center text-white flex items-center justify-center"
-          style={{ backgroundImage: `url('/hero-image.jpg')` }} // Use a valid image path
-        >
-          <motion.h1
-            className="text-4xl font-bold bg-black bg-opacity-50 px-4 py-2 rounded-lg"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            Welcome to ChefMATE!
-          </motion.h1>
+        <div className="text-center text-white bg-dark py-5 rounded shadow">
+          <h1 className="fw-bold">
+            Welcome, <span className="text-primary">{userName}</span>! 👋
+          </h1>
+          <p>Discover new recipes and plan your meals easily</p>
         </div>
 
-        {/* Search Bar */}
-        <div className="m-6 flex items-center bg-white p-4 rounded-lg shadow-md border border-gray-200">
-          <Search className="text-gray-500 mr-3" />
+        {/* Profile Section */}
+        <div className="d-flex justify-content-between align-items-center my-4">
+          <h2 className="fw-bold">Your Dashboard</h2>
+          <button className="btn btn-primary">
+            <User className="me-2" /> View Profile
+          </button>
+        </div>
+
+        {/* Search & Filters */}
+        <div className="input-group mb-3">
+          <span className="input-group-text"><Search /></span>
           <input
             type="text"
+            className="form-control"
             placeholder="Search recipes..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full p-2 focus:outline-none"
           />
         </div>
 
         {/* Error Message */}
-        {error && <p className="text-red-500 text-center">{error}</p>}
+        {error && <div className="alert alert-danger text-center">{error}</div>}
 
         {/* Recommended Recipes */}
-        <h2 className="text-2xl font-semibold mb-4 ml-6">Recommended Recipes</h2>
-
+        <h3 className="mb-3">Recommended Recipes</h3>
         {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <div className="spinner border-t-4 border-blue-500 border-solid w-10 h-10 rounded-full animate-spin"></div>
+          <div className="text-center py-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-6">
+          <div className="row">
             {recipes.length > 0 ? (
               recipes.map((recipe) => (
                 <motion.div
                   key={recipe.id}
-                  className="bg-white rounded-lg shadow-lg p-4 transition-transform transform hover:scale-105 cursor-pointer"
+                  className="col-md-4 mb-4"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <img
-                    src={recipe.image}
-                    alt={recipe.title}
-                    className="w-full h-40 object-cover rounded-lg"
-                  />
-                  <h3 className="text-lg font-bold mt-2">{recipe.title}</h3>
-                  <p className="flex items-center text-yellow-500 mt-1">
-                    <Star className="mr-1" /> N/A
-                  </p>
+                  <div className="card shadow-sm border-0">
+                    <img
+                      src={recipe.image}
+                      alt={recipe.title}
+                      className="card-img-top"
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title">{recipe.title}</h5>
+                      <p className="text-warning">
+                        <Star className="me-1" /> N/A
+                      </p>
+                    </div>
+                  </div>
                 </motion.div>
               ))
             ) : (
-              !loading && <p className="text-center text-gray-500">No recipes to display</p>
+              <p className="text-center text-muted">No recipes to display</p>
             )}
           </div>
         )}
+
+        {/* Additional Features */}
+        <div className="row mt-5">
+          <div className="col-md-4">
+            <div className="card p-3 text-center shadow-sm">
+              <Calendar size={40} className="mx-auto text-primary" />
+              <h5 className="mt-3">Meal Planner</h5>
+              <p>Plan your weekly meals with ease.</p>
+              <button className="btn btn-outline-primary">View</button>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="card p-3 text-center shadow-sm">
+              <List size={40} className="mx-auto text-success" />
+              <h5 className="mt-3">Shopping List</h5>
+              <p>Get a generated shopping list for recipes.</p>
+              <button className="btn btn-outline-success">View</button>
+            </div>
+          </div>
+          <div className="col-md-4">
+            <div className="card p-3 text-center shadow-sm">
+              <Star size={40} className="mx-auto text-warning" />
+              <h5 className="mt-3">Favorites</h5>
+              <p>Save and access your favorite recipes.</p>
+              <button className="btn btn-outline-warning">View</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

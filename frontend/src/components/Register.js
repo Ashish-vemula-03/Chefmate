@@ -17,12 +17,16 @@ function Register() {
       const response = await axios.post(
         "http://localhost:5000/api/auth/register", // Ensure this URL is correct
         { username, email, password },
-        { headers: { "Content-Type": "application/json" } } // Explicit headers
+        { headers: { "Content-Type": "application/json" } }
       );
 
       if (response.data.success) {
         alert("Registration successful!");
-        navigate("/login");
+
+        // Wait for alert completion before navigating
+        setTimeout(() => {
+          navigate("/login");
+        }, 1000);
       } else {
         alert(response.data.message || "Registration failed!");
       }

@@ -4,30 +4,39 @@ import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "animate.css";
 
-function Login() {
+function Login({ setUser }) {  // ✅ Accept setUser prop to update state in App.js
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);  // ✅ New: Loading state
+  const [errorMessage, setErrorMessage] = useState(""); // ✅ New: Error message state
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMessage("");
+  
     try {
       const response = await axios.post("http://localhost:5000/api/auth/login", {
         email,
         password
       });
-
+  
+      console.log("Login Response:", response.data); // ✅ Debugging: Check API response
+  
       if (response.data.success) {
-        localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user data
-        alert("Login successful!");
-        navigate("/dashboard"); // Navigate to Dashboard
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        setUser(response.data.user); 
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Login failed:", error.response?.data || error);
-      alert("Invalid credentials! Please try again.");
+      setErrorMessage(error.response?.data?.message || "Invalid credentials! Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
-
+  
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div
@@ -39,6 +48,11 @@ function Login() {
         }}
       >
         <h2 className="text-center fw-bold text-white mb-3">Login</h2>
+        
+        {errorMessage && (  // ✅ Show error message if exists
+          <div className="alert alert-danger text-center p-2">{errorMessage}</div>
+        )}
+
         <form onSubmit={handleLogin} className="d-flex flex-column">
           <div className="mb-3">
             <input
@@ -67,8 +81,9 @@ function Login() {
               background: "linear-gradient(135deg, #667eea, #764ba2)",
               border: "none",
             }}
+            disabled={loading}  // ✅ Disable button when loading
           >
-            Login
+            {loading ? "Logging in..." : "Login"} {/* ✅ Show loading text */}
           </button>
         </form>
 

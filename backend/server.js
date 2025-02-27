@@ -5,9 +5,10 @@ import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import connectDB from "./config/db.js";
-import User from "./models/User.js"; // ✅ Importing User model
+import User from "./models/userModel.js"; // ✅ Importing User model
 import authRoutes from "./routes/authRoutes.js";
 import recipeRoutes from "./routes/recipeRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 dotenv.config();
 connectDB(); // ✅ Connect to MongoDB
@@ -87,6 +88,7 @@ app.get("/api/user/:id", async (req, res) => {
 // ✅ Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/recipes", recipeRoutes);
+app.use("/api/users", userRoutes);
 
 // ✅ Start Server
 const PORT = process.env.PORT || 5000;

@@ -1,12 +1,12 @@
 import express from "express";
 import axios from "axios";
 import dotenv from "dotenv";
-import auth from "../middleware/auth.js"; // Keep this for protected routes
+import authMiddleware from "../middleware/auth.js"; // ✅ Default Import (Correct)
 
 dotenv.config();
 const router = express.Router();
 
-// Fetch recipes dynamically from Spoonacular API
+// 🔹 Fetch recipes dynamically from Spoonacular API
 router.get("/fetch", async (req, res) => {
   try {
     const { query } = req.query; // Get search query from request
@@ -28,7 +28,7 @@ router.get("/fetch", async (req, res) => {
   }
 });
 
-// Fetch a single recipe by ID from Spoonacular
+// 🔹 Fetch a single recipe by ID from Spoonacular
 router.get("/fetch/:id", async (req, res) => {
   try {
     const { id } = req.params; // Get recipe ID from URL
@@ -44,4 +44,9 @@ router.get("/fetch/:id", async (req, res) => {
   }
 });
 
-export default router;
+// 🔹 Example of a **Protected Route** (if needed)
+router.get("/protected-route", authMiddleware, async (req, res) => {
+  res.json({ message: "This is a protected route", user: req.user });
+});
+
+export default router; // ✅ Default Export
