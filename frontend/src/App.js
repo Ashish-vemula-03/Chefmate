@@ -1,24 +1,35 @@
+// ✅ Third-Party Libraries First
+import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+// ✅ Components Next
+import Navbar from "./components/Navbar";
 import Register from "./components/Register";
 import Login from "./components/Login";
-import Navbar from "./components/Navbar"; // If you have a Navbar component
-import "bootstrap/dist/css/bootstrap.min.css";
-import Dashboard from "./pages/Dashboard"; // Import Dashboard component
-import ProtectedRoute from "./utils/ProtectedRoute"; // Import ProtectedRoute component 
+import ProtectedRoute from "./utils/ProtectedRoute";
+
+// ✅ Pages Last
+import Home from "./pages/Home";
+import Dashboard from "./pages/Dashboard";
+import Recipes from "./pages/Recipes";
+
+
+
+
 
 function App() {
   return (
     <Router>
-      {/* Include Navbar if you have one */}
+      <Navbar /> {/* Keep Navbar outside Routes for global navigation */}
       <div className="container mt-4">
         <Routes>
-          <Route path="/" element={<><Navbar /><Home /></>} />
-          <Route path="/register" element={<><Navbar /><Register /></>} />
-          <Route path="/login" element={<><Navbar /><Login /></>} />
-          <Route path="/dashboard" element={<Dashboard />} /> {/* Add Dashboard Route */}
+          <Route path="/" element={<Home />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/recipes" element={<Recipes />} /> {/* Add Recipes Route */}
           <Route path="/protected" element={<ProtectedRoute />} />
-          {/* Add more routes as needed */}
         </Routes>
       </div>
     </Router>
@@ -26,4 +37,3 @@ function App() {
 }
 
 export default App;
-

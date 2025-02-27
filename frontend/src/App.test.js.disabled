@@ -1,0 +1,15 @@
+import { render, screen } from "@testing-library/react";
+import { BrowserRouter } from "react-router-dom";
+import App from "./App";
+
+test("renders the app correctly", () => {
+  render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  );
+
+  // Change the text below to match something actually visible in your App component
+  const homeText = screen.getByText(/Welcome to Chefmate/i);
+  expect(homeText).toBeInTheDocument();
+});

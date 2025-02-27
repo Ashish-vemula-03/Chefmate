@@ -14,7 +14,6 @@
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^13.5.0",
     "animate.css": "^4.1.1",
     "axios": "^1.7.9",
@@ -47,5 +46,10 @@
   "bugs": {
     "url": "https://github.com/Ashish-vemula-03/Chefmate/issues"
   },
-  "homepage": "https://github.com/Ashish-vemula-03/Chefmate#readme"
+  "homepage": "https://github.com/Ashish-vemula-03/Chefmate#readme",
+  "devDependencies": {
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@testing-library/react": "^16.2.0"
+  }
 }

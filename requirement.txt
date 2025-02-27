@@ -1,4 +1,4 @@
-"dependencies": {
+"dependencies": 
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
@@ -23,6 +23,10 @@
     boostrap framer-motion
     animate.css
     lucide-react
+    npm install --save-dev @babel/preset-env @babel/preset-react babel-jest
+    npm install --save-dev @testing-library/react
+
+
 
     backend
     npm run start-server

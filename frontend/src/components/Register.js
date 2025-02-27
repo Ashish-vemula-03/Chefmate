@@ -6,22 +6,36 @@ function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
-        username,
-        email,
-        password
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/register", // Ensure this URL is correct
+        { username, email, password },
+        { headers: { "Content-Type": "application/json" } } // Explicit headers
+      );
+
       if (response.data.success) {
         alert("Registration successful!");
         navigate("/login");
+      } else {
+        alert(response.data.message || "Registration failed!");
       }
     } catch (error) {
-      console.error("Registration failed:", error.response?.data || error);
+      console.error("Registration failed:", error);
+
+      if (!error.response) {
+        alert("Cannot connect to the server. Make sure the backend is running!");
+      } else {
+        alert(error.response.data.message || "An error occurred during registration.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -56,7 +70,7 @@ function Register() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            </div>
+          </div>
           <div className="mb-3">
             <input
               type="password"
@@ -74,8 +88,9 @@ function Register() {
               background: "linear-gradient(135deg, #667eea, #764ba2)",
               border: "none",
             }}
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
@@ -88,7 +103,7 @@ function Register() {
           >
             Login
           </span>
-          </p>
+        </p>
       </div>
     </div>
   );

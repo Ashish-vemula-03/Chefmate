@@ -16,6 +16,7 @@ function Login() {
         email,
         password
       });
+
       if (response.data.success) {
         localStorage.setItem("user", JSON.stringify(response.data.user)); // Store user data
         alert("Login successful!");
@@ -23,6 +24,7 @@ function Login() {
       }
     } catch (error) {
       console.error("Login failed:", error.response?.data || error);
+      alert("Invalid credentials! Please try again.");
     }
   };
 
