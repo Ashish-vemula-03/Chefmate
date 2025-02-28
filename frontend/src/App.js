@@ -8,6 +8,7 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import ProtectedRoute from "./utils/ProtectedRoute";
 
+
 // ✅ Pages
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
@@ -15,6 +16,7 @@ import Recipes from "./pages/Recipes";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isOpen, setIsOpen] = useState(true); // ✅ Sidebar state
 
   // ✅ Load user from localStorage on first render
   useEffect(() => {
@@ -34,7 +36,7 @@ function App() {
 
       const response = await fetch("http://your-backend-api.com/api/user", {
         method: "GET",
-        headers: { "Authorization": `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
@@ -48,19 +50,24 @@ function App() {
     }
   };
 
+  // ✅ Toggle Sidebar
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
   return (
     <Router>
-      <div className="container mt-4">
-        <Routes>
-          <Route path="/" element={<><Navbar /><Home /></>} />
-          <Route path="/register" element={<><Navbar /><Register /></>} />
-          <Route path="/login" element={<><Navbar /><Login setUser={setUser} /></>} />
-          
-          {/* ✅ Pass user & setUser for updates */}
-          <Route path="/dashboard" element={<Dashboard user={user} setUser={setUser} />} />
-          <Route path="/recipes" element={<Recipes />} />
-          <Route path="/protected" element={<ProtectedRoute />} />
-        </Routes>
+      <div className="d-flex">
+        <div className="container mt-4">
+          <Routes>
+            <Route path="/" element={<><Navbar /><Home /></>} />
+            <Route path="/register" element={<><Navbar /><Register /></>} />
+            <Route path="/login" element={<><Navbar /><Login setUser={setUser} /></>} />
+            
+            {/* ✅ Pass user, setUser, isOpen, and toggleSidebar */}
+            <Route path="/dashboard" element={<Dashboard user={user} setUser={setUser} isOpen={isOpen} toggleSidebar={toggleSidebar} />} />
+            <Route path="/recipes" element={<Recipes />} />
+            <Route path="/protected" element={<ProtectedRoute />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );

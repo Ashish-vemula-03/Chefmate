@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+
+.sidebar {
+  width: 80px;
+  transition: width 0.3s ease-in-out;
+}
+
+.content-expanded {
+  margin-left: 250px; /* Shift content right when sidebar expands */
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.content-collapsed {
+  margin-left: 80px; /* Shift content left when sidebar collapses */
+  transition: margin-left 0.3s ease-in-out;
+}

@@ -4,18 +4,18 @@ import { Search, Star, User, Calendar, List } from "lucide-react";
 import Sidebar from "../components/Sidebar";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const Dashboard = ({ user, setUser }) => { // ✅ Accept props from App.js
+const Dashboard = ({ user, setUser, isOpen, toggleSidebar }) => {
   const [query, setQuery] = useState("");
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [userName, setUserName] = useState(user?.username || "Guest"); // ✅ Uses passed user
+  const [userName, setUserName] = useState(user?.username || "Guest");
 
   const API_KEY = "ccab842f1fa040e5b40a77f6902ece2d"; // Replace with your actual API key
 
-  // ✅ Fetch user details if not already available
+  // ✅ Fetch user details only if not available
   useEffect(() => {
-    if (user?.username) return; // Skip fetching if user is already provided
+    if (user?.username) return;
 
     const fetchUserData = async () => {
       try {
@@ -32,15 +32,13 @@ const Dashboard = ({ user, setUser }) => { // ✅ Accept props from App.js
 
         const data = await response.json();
         if (response.ok) {
-          setUser(data); // ✅ Update global user state
+          setUser(data);
           setUserName(data.username || "Guest");
-          localStorage.setItem("user", JSON.stringify(data)); // ✅ Persist user
+          localStorage.setItem("user", JSON.stringify(data));
         } else {
-          console.error("Failed to fetch user details");
           setUserName("Guest");
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
         setUserName("Guest");
       }
     };
@@ -48,39 +46,42 @@ const Dashboard = ({ user, setUser }) => { // ✅ Accept props from App.js
     fetchUserData();
   }, [user, setUser]);
 
-  const fetchRecipes = async () => {
+  // ✅ Fetch recipes only when query changes
+  useEffect(() => {
     if (!query.trim()) {
       setRecipes([]);
-      setError("Please enter a search term.");
+      setError("");
       return;
     }
-    setLoading(true);
-    setError("");
 
-    try {
-      const response = await fetch(
-        `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=5&apiKey=${API_KEY}`
-      );
-      const data = await response.json();
-      setRecipes(data.results.length > 0 ? data.results : []);
-      setError(data.results.length === 0 ? "No recipes found." : "");
-    } catch (err) {
-      setError("Failed to fetch recipes. Try again.");
-    }
-    setLoading(false);
-  };
+    const fetchRecipes = async () => {
+      setLoading(true);
+      setError("");
 
-  useEffect(() => {
-    if (query.trim()) fetchRecipes();
-  }, [query]);
+      try {
+        const response = await fetch(
+          `https://api.spoonacular.com/recipes/complexSearch?query=${query}&number=5&apiKey=${API_KEY}`
+        );
+        const data = await response.json();
+        setRecipes(data.results.length > 0 ? data.results : []);
+        setError(data.results.length === 0 ? "No recipes found." : "");
+      } catch (err) {
+        setError("Failed to fetch recipes. Try again.");
+      }
+      setLoading(false);
+    };
+
+    fetchRecipes();
+  }, [query]); // ✅ Ensure useEffect is triggered only when query changes
 
   return (
     <div className="d-flex bg-light min-vh-100">
-      {/* Sidebar */}
-      <Sidebar />
+      {/* ✅ Pass props to Sidebar */}
+      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
       {/* Main Content */}
-      <div className="container-fluid p-4">
+      <div className={`main-content container-fluid p-4 ${isOpen ? "content-expanded" : "content-collapsed"}`}>
+
         {/* Hero Section */}
         <div className="text-center text-white bg-dark py-5 rounded shadow">
           <h1 className="fw-bold">
